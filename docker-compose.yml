@@ -1,0 +1,52 @@
+# Sistema de Avaliação do Atendimento — SEMAD / Prefeitura de São Luís
+# Sobe: PostgreSQL + API (Node/Express) + Dashboard (React servido pelo nginx, com proxy /api).
+# Uso: cp .env.example .env  →  edite as senhas  →  docker compose up -d --build
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-avaliacao}
+      POSTGRES_USER: ${POSTGRES_USER:-semad}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD no .env}
+      TZ: America/Fortaleza
+    volumes:
+      - dados_postgres:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: ./api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgres://${POSTGRES_USER:-semad}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-avaliacao}
+      JWT_SECRET: ${JWT_SECRET:?Defina JWT_SECRET no .env}
+      TOTEM_API_KEY: ${TOTEM_API_KEY:?Defina TOTEM_API_KEY no .env}
+      ATENDIMENTO_USER: ${ATENDIMENTO_USER:-atendimento}
+      ATENDIMENTO_PASSWORD: ${ATENDIMENTO_PASSWORD}
+      ASSESSORIA_USER: ${ASSESSORIA_USER:-assessoria}
+      ASSESSORIA_PASSWORD: ${ASSESSORIA_PASSWORD}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      REPORT_TIMEZONE: America/Fortaleza
+      TZ: America/Fortaleza
+
+  dashboard:
+    build: ./dashboard
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "${DASHBOARD_PORT:-8080}:80"
+
+volumes:
+  dados_postgres:
