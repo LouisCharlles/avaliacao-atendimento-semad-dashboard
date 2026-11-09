@@ -22,6 +22,7 @@ services:
 
   api:
     build: ./api
+    image: avaliacao-semad-api:latest
     restart: unless-stopped
     depends_on:
       db:
@@ -42,6 +43,7 @@ services:
 
   dashboard:
     build: ./dashboard
+    image: avaliacao-semad-dashboard:latest
     restart: unless-stopped
     depends_on:
       - api

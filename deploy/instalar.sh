@@ -123,9 +123,18 @@ PORTA=$(grep -E '^DASHBOARD_PORT=' .env | cut -d= -f2)
 PORTA=${PORTA:-8080}
 
 # ---------------------------------------------------------------- 4. subir
-passo "Construindo e subindo os containers (a primeira vez leva alguns minutos)"
-docker compose up -d --build --remove-orphans
-docker image prune -f >/dev/null
+if [[ "${SEM_BUILD:-0}" == 1 ]]; then
+  # Imagens montadas em outra máquina e carregadas com `docker load` (internet lenta no servidor).
+  passo "Subindo os containers com as imagens já carregadas (sem build)"
+  for img in postgres:16-alpine avaliacao-semad-api:latest avaliacao-semad-dashboard:latest; do
+    docker image inspect "$img" >/dev/null 2>&1 || falha "Imagem $img não encontrada. Carregue-a com docker load antes."
+  done
+  docker compose up -d --no-build --pull never --remove-orphans
+else
+  passo "Construindo e subindo os containers (a primeira vez leva alguns minutos)"
+  docker compose up -d --build --remove-orphans
+  docker image prune -f >/dev/null
+fi
 
 passo "Aguardando a API responder"
 for i in $(seq 1 60); do
