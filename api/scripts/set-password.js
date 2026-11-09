@@ -7,7 +7,7 @@ import bcrypt from 'bcryptjs';
 import { pool } from '../src/db.js';
 import { config } from '../src/config.js';
 
-const usuario = process.argv[2];
+const usuario = process.argv[2]?.trim().toLowerCase();
 if (!usuario) {
   console.error('Uso: npm run set-password -- <usuario>');
   process.exit(1);

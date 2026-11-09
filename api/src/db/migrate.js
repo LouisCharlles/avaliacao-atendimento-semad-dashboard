@@ -24,7 +24,9 @@ export async function migrar() {
     }
 
     // Usuários iniciais: criados só se não existirem (a senha nunca é sobrescrita aqui).
-    for (const u of config.usuariosIniciais) {
+    // O login compara em minúsculas, então o usuário é sempre gravado em minúsculas.
+    for (const inicial of config.usuariosIniciais) {
+      const u = { ...inicial, usuario: inicial.usuario.trim().toLowerCase() };
       const existe = await client.query('SELECT 1 FROM usuarios WHERE usuario = $1', [u.usuario]);
       if (existe.rowCount > 0) continue;
       if (!u.senha) {

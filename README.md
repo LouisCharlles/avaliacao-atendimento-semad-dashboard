@@ -17,6 +17,19 @@ Este é o servidor do sistema de avaliação do atendimento. Ele recebe as avali
               (login + dashboard)        (Docker)          (Docker)            (Docker)
 ```
 
+## Implantação em produção (servidor Ubuntu)
+
+Dentro do servidor, um único comando instala o Docker, baixa o projeto em `/opt/avaliacao-semad`, gera o `.env` com segredos aleatórios, sobe tudo e agenda o backup diário do banco:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/LouisCharlles/avaliacao-atendimento-semad-dashboard/master/deploy/instalar.sh | sudo bash
+```
+
+- No fim, o script mostra o endereço do dashboard, os usuários e senhas iniciais e a chave do totem. Tudo fica salvo em `/root/avaliacao-semad-credenciais.txt`, legível só pelo root.
+- **Atualizar** para a versão mais nova do GitHub: rode o mesmo comando. O `.env` e o banco são mantidos.
+- **Backup:** todo dia às 02:30, em `/var/backups/avaliacao-semad/`, com retenção de 30 dias. Para um backup manual: `sudo avaliacao-semad-backup`. A restauração está descrita em `deploy/backup.sh`.
+- Para reaproveitar uma chave de totem que já está nos aparelhos, informe-a na primeira execução: `... | sudo TOTEM_API_KEY='chave' bash`.
+
 ## Subir com Docker Compose
 
 ```bash
