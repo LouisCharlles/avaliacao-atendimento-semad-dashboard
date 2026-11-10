@@ -55,7 +55,7 @@ if [[ -d "$DIR_APP/.git" ]]; then
 else
   git clone --quiet --branch "$BRANCH" "$REPO" "$DIR_APP"
 fi
-git -C "$DIR_APP" log -1 --format='Versão: %h %s (%cd)' --date=short
+git -C "$DIR_APP" --no-pager log -1 --format='Versão: %h %s (%cd)' --date=short
 cd "$DIR_APP"
 
 # ---------------------------------------------------------------- 3. .env
