@@ -37,6 +37,11 @@ export function paramsFiltros(f: Filtros): string {
 export const api = {
   login: (usuario: string, senha: string) =>
     requisicao<{ usuario: Usuario }>('/api/auth/login', { method: 'POST', body: JSON.stringify({ usuario, senha }) }),
+  trocarSenha: (usuario: string, senhaAtual: string, novaSenha: string) =>
+    requisicao<void>('/api/auth/trocar-senha', {
+      method: 'POST',
+      body: JSON.stringify({ usuario, senhaAtual, novaSenha }),
+    }),
   logout: () => requisicao<void>('/api/auth/logout', { method: 'POST' }),
   sessao: () => requisicao<{ usuario: Usuario }>('/api/auth/me'),
   painel: (f: Filtros) => requisicao<Painel>(`/api/painel?${paramsFiltros(f)}`),
