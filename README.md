@@ -39,7 +39,7 @@ docker compose up -d --build
 
 - Dashboard: `http://IP-DO-SERVIDOR:8080`. A mesma URL serve aos dois perfis: sem sessão aparece o login.
 - No primeiro start são criados o banco, as tabelas, os 17 setores e os dois usuários.
-- As senhas do `.env` (`ATENDIMENTO_PASSWORD`, `ASSESSORIA_PASSWORD`) só são lidas no primeiro start e ficam gravadas **apenas como hash bcrypt** (custo 12). Para trocar depois:
+- As senhas do `.env` (`ATENDIMENTO_PASSWORD`, `ASSESSORIA_PASSWORD`) só são lidas no primeiro start e ficam gravadas **apenas como hash bcrypt** (custo 12). O próprio usuário pode trocar a senha pelo link **Trocar senha** na tela de login (pede a senha atual; mínimo de 10 caracteres). Para redefinir sem saber a senha atual:
 
 ```bash
 docker compose exec api npm run set-password -- atendimento
