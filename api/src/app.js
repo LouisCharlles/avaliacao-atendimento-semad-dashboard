@@ -24,6 +24,9 @@ export function criarApp() {
       credentials: true,
     }),
   );
+  // O lote da fila offline (até 100 avaliações com comentário) precisa de um corpo maior.
+  // Registrado antes do parser geral, que ignora corpos já lidos.
+  app.use('/api/avaliacoes/lote', express.json({ limit: '512kb' }));
   app.use(express.json({ limit: '20kb' }));
   app.use(cookieParser());
 
@@ -45,6 +48,7 @@ export function criarApp() {
   // eslint-disable-next-line no-unused-vars
   app.use((err, req, res, next) => {
     if (err.type === 'entity.parse.failed') return res.status(400).json({ erro: 'JSON inválido.' });
+    if (err.type === 'entity.too.large') return res.status(413).json({ erro: 'Requisição grande demais.' });
     console.error('[erro]', err);
     return res.status(500).json({ erro: 'Erro interno do servidor.' });
   });

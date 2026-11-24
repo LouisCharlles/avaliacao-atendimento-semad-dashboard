@@ -102,6 +102,7 @@ cd dashboard && npm install && npm run dev                           # http://lo
 | GET | `/api/health` | público |
 | GET | `/api/avaliacoes/config` | público (perguntas e setores) |
 | POST | `/api/avaliacoes` | totem (`X-Totem-Key`) |
+| POST | `/api/avaliacoes/lote` | totem (`X-Totem-Key`) |
 | POST | `/api/auth/login` · `/api/auth/logout` | público |
 | GET | `/api/auth/me` | sessão |
 | GET | `/api/painel?inicio=AAAA-MM-DD&fim=AAAA-MM-DD&setor=SIGLA` | sessão |
@@ -123,6 +124,16 @@ Corpo esperado em `POST /api/avaliacoes`:
 ```
 
 Notas `q1` a `q4`: 5 = Excelente/Muito satisfatório … 1 = Péssimo/Muito insatisfatório.
+
+`POST /api/avaliacoes/lote` recebe a fila offline do totem de uma vez: `{ "totemId": "totem-01", "avaliacoes": [ …até 100 itens no formato acima ] }`. Cada item é validado sozinho, e a resposta traz o resultado de cada um, na mesma ordem do envio:
+
+```json
+{ "ok": true, "resultados": [ { "clientId": "…", "status": "aceita | duplicada | invalida" } ] }
+```
+
+Os reenvios são idempotentes pelo `clientId`, nas duas rotas.
+
+Limites de requisição: 300 por minuto por IP (antes da chave) e, por totem (`totemId`), 60 por minuto em `/api/avaliacoes` e 20 lotes por minuto em `/lote`. Quando o limite estoura, a API responde 429 com `Retry-After`, e o totem espera esse tempo antes de tentar de novo.
 
 ## Pontos de atenção
 
